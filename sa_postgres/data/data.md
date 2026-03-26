@@ -1,0 +1,1 @@
+Download employees database dump from `wget https://raw.githubusercontent.com/neondatabase/postgres-sample-dbs/main/employees.sql.gz`

@@ -1,4 +1,4 @@
-from agent import Dependencies, agent, DatabaseClient
+from .agent import Dependencies, agent, DatabaseClient
 
 db_client = DatabaseClient()
 deps = Dependencies(db_client=db_client)
