@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "api:ai-agent",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "app.main:app",
+                "--reload"
+            ],
+            "jinja": true,
+            "justMyCode": true
+        },
+        {
+            "name": "cli:ai-agent",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "app.cli",
+            "jinja": true,
+            "justMyCode": true
+        }
+    ]
+}
