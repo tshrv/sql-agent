@@ -4,6 +4,7 @@ from pydantic_ai import Agent, RunContext
 from pydantic_ai.models.openai import OpenAIChatModel
 from pydantic_ai.providers.openai import OpenAIProvider
 from pydantic import BaseModel
+from app.settings import settings
 
 
 @dataclass
@@ -42,10 +43,10 @@ class Dependencies(BaseModel):
 
 
 model = OpenAIChatModel(
-    model_name='qwen3.5:2b',
+    model_name=settings.llm_model,
     provider=OpenAIProvider(
-        base_url="http://172.29.192.1:11434/v1",
-        api_key="ollama-dummy-key"
+        base_url=settings.llm_api_base_url,
+        api_key=settings.llm_api_key
     )
 )
 
@@ -56,7 +57,6 @@ agent = Agent[Dependencies](
     system_prompt='You are a concise, helpful AI assistant built with pydantic-ai and FastAPI.',
     deps_type=Dependencies
 )
-
 
 
 @agent.tool
