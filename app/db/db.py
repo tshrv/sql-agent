@@ -1,11 +1,11 @@
 import asyncpg
-from typing import List, Dict, Any
-from app.settings import Settings
+from typing import List, Dict, Any, Optional
+from app.settings import Settings, settings as default_settings
 
 
 class DatabaseClient:
-    def __init__(self, settings: Settings):
-        self.settings = settings
+    def __init__(self, settings: Optional[Settings] = None):
+        self.settings = settings or default_settings
         self.pool: asyncpg.Pool | None = None
 
     async def connect(self):

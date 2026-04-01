@@ -1,32 +1,45 @@
+import logfire
 from fastapi import FastAPI
 from pydantic import BaseModel
-from app.agents import agent, Dependencies
-from app.settings import settings
+
+from app.agents import Dependencies, agent
 from app.db import DatabaseClient
+from app.settings import settings
 
 app = FastAPI(
     title="FastAPI Template",
     description="A basic FastAPI template with a built-in AI Agent",
-    version="1.0.0"
+    version="1.0.0",
 )
+
+# logfire
+logfire.configure()
+logfire.instrument_fastapi(app)
+
+# database client
 dbc = DatabaseClient(settings)
+
 
 # Request model for our chat endpoint
 class ChatRequest(BaseModel):
     prompt: str
 
+
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
+
 
 @app.get("/test-db")
 async def test_db():
     count = await dbc.execute_query("SELECT count(*) FROM employees.employee")
     return {"message": "Database connection successful", "employee_count": count}
 
+
 @app.get("/health")
 async def health_check():
     return {"status": "ok"}
+
 
 @app.post("/chat")
 async def chat_endpoint(request: ChatRequest):
@@ -41,6 +54,6 @@ async def chat_endpoint(request: ChatRequest):
         return {"response": result.data}
     except Exception as e:
         return {
-            "error": str(e), 
-            "message": "Make sure Ollama is running with the llama3:8b model!"
+            "error": str(e),
+            "message": "Make sure Ollama is running with the llama3:8b model!",
         }

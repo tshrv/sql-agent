@@ -1,10 +1,15 @@
 from dataclasses import dataclass
 
+import logfire
+from pydantic import BaseModel
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.models.openai import OpenAIChatModel
 from pydantic_ai.providers.openai import OpenAIProvider
-from pydantic import BaseModel
+
 from app.settings import settings
+
+logfire.configure()
+logfire.instrument_pydantic_ai()
 
 
 @dataclass
@@ -16,17 +21,10 @@ class UserInfo:
 
 class DatabaseClient:
     USER_DATA = {
-        "tushar": {
-            "name": "Tushar",
-            "age": 30,
-            "location": "New York"
-        },
-        "alice": {
-            "name": "Alice",
-            "age": 25,
-            "location": "San Francisco"
-        }
+        "tushar": {"name": "Tushar", "age": 30, "location": "New York"},
+        "alice": {"name": "Alice", "age": 25, "location": "San Francisco"},
     }
+
     def get_user_info(self, username: str) -> UserInfo | None:
         user_data = self.USER_DATA.get(username)
         if user_data:
@@ -35,27 +33,24 @@ class DatabaseClient:
 
 
 class Dependencies(BaseModel):
-    db_client: 'DatabaseClient'
+    db_client: "DatabaseClient"
 
-    model_config = {
-        "arbitrary_types_allowed": True
-    }
+    model_config = {"arbitrary_types_allowed": True}
 
 
 model = OpenAIChatModel(
     model_name=settings.llm_model,
     provider=OpenAIProvider(
-        base_url=settings.llm_api_base_url,
-        api_key=settings.llm_api_key
-    )
+        base_url=settings.llm_api_base_url, api_key=settings.llm_api_key
+    ),
 )
 
 
 agent = Agent[Dependencies](
     model=model,
     instructions="use tools as and when needed",
-    system_prompt='You are a concise, helpful AI assistant built with pydantic-ai and FastAPI.',
-    deps_type=Dependencies
+    system_prompt="You are a concise, helpful AI assistant built with pydantic-ai and FastAPI.",
+    deps_type=Dependencies,
 )
 
 
@@ -70,10 +65,12 @@ def get_user_info(ctx: RunContext[Dependencies], username: str) -> UserInfo | No
         print(f"No user found with username: {username}")
         return None
 
+
 @agent.tool_plain
 def get_current_time():
     """Get the current time."""
     from datetime import datetime
+
     time = datetime.now().isoformat()
     print(time)
     return time
